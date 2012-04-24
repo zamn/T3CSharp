@@ -1,0 +1,47 @@
+﻿<Page x:Class="TicTacClient.Menus.GameBoard"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="525"
+	Title="GameBoard">
+
+    <Grid>        
+        <Rectangle Height="72" Fill="Bisque" HorizontalAlignment="Left" Margin="147,43,0,0" Name="spot1" Stroke="Black" VerticalAlignment="Top" Width="72" MouseDown="SelectSpot" />
+        <Rectangle Height="72" Fill="AntiqueWhite" HorizontalAlignment="Left" Margin="218,43,0,0" Name="spot2" Stroke="Black" VerticalAlignment="Top" Width="72" MouseDown="SelectSpot" />
+        <Rectangle Height="72" Fill="Bisque" HorizontalAlignment="Left" Margin="289,43,0,0" Name="spot3" Stroke="Black" VerticalAlignment="Top" Width="72" MouseDown="SelectSpot" />
+        <Rectangle Height="72" Fill="AntiqueWhite" HorizontalAlignment="Left" Margin="147,114,0,0" Name="spot4" Stroke="Black" VerticalAlignment="Top" Width="72" MouseDown="SelectSpot" />
+        <Rectangle Height="72" Fill="Bisque" HorizontalAlignment="Left" Margin="218,114,0,0" Name="spot5" Stroke="Black" VerticalAlignment="Top" Width="72" MouseDown="SelectSpot" />
+        <Rectangle Height="72" Fill="AntiqueWhite" HorizontalAlignment="Left" Margin="289,114,0,0" Name="spot6" Stroke="Black" VerticalAlignment="Top" Width="72" MouseDown="SelectSpot" />
+        <Rectangle Height="72" Fill="Bisque" HorizontalAlignment="Left" Margin="147,185,0,0" Name="spot7" Stroke="Black" VerticalAlignment="Top" Width="72" MouseDown="SelectSpot" />
+        <Rectangle Height="72" Fill="AntiqueWhite" HorizontalAlignment="Left" Margin="218,185,0,0" Name="spot8" Stroke="Black" VerticalAlignment="Top" Width="72" MouseDown="SelectSpot" />
+        <Rectangle Height="72" Fill="Bisque" HorizontalAlignment="Left" Margin="289,185,0,0" Name="spot9" Stroke="Black" VerticalAlignment="Top" Width="72" MouseDown="SelectSpot" />
+
+        <Label Content="Your Name(S)" Margin="12,12,387,0" Name="playerLabel" HorizontalContentAlignment="Center" Foreground="#FF3C8D24" FontWeight="Bold" Height="28" VerticalAlignment="Top" />
+        <Label Content="Opponent's Name(S)" Margin="369,12,25,0" Name="opponentLabel" HorizontalContentAlignment="Center" Foreground="#FFB7592F" FontWeight="Normal" Height="28" VerticalAlignment="Top" />
+        <Label Content="Your move!" Height="28" HorizontalAlignment="Left" Margin="165,263,0,0" Name="statusLabel" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="182" />
+
+        <Label Content="" FontSize="40" Height="56" HorizontalAlignment="Left" Margin="165,48,0,0" Name="spot1Label" VerticalAlignment="Top" Width="43" Foreground="#FF5C5C5C" IsHitTestVisible="False" />
+        <Label Content="" FontSize="40" Height="56" HorizontalAlignment="Left" Margin="237,48,0,0" Name="spot2Label" VerticalAlignment="Top" Width="43" Foreground="#FF5C5C5C" IsHitTestVisible="False" />
+        <Label Content="" FontSize="40" Height="56" HorizontalAlignment="Left" Margin="308,48,0,0" Name="spot3Label" VerticalAlignment="Top" Width="43" Foreground="#FF5C5C5C" IsHitTestVisible="False" />
+        <Label Content="" FontSize="40" Foreground="#FF5C5C5C" Height="56" HorizontalAlignment="Left" Margin="165,121,0,0" Name="spot4Label" VerticalAlignment="Top" Width="43" IsHitTestVisible="False" />
+        <Label Content="" FontSize="40" Foreground="#FF5C5C5C" Height="56" HorizontalAlignment="Left" Margin="237,121,0,0" Name="spot5Label" VerticalAlignment="Top" Width="43" IsHitTestVisible="False" />
+        <Label Content="" FontSize="40" Foreground="#FF5C5C5C" Height="56" HorizontalAlignment="Left" Margin="308,121,0,0" Name="spot6Label" VerticalAlignment="Top" Width="43" IsHitTestVisible="False" />
+        <Label Content="" FontSize="40" Foreground="#FF5C5C5C" Height="56" HorizontalAlignment="Left" Margin="165,192,0,0" Name="spot7Label" VerticalAlignment="Top" Width="43" IsHitTestVisible="False" />
+        <Label Content="" FontSize="40" Foreground="#FF5C5C5C" Height="56" HorizontalAlignment="Left" Margin="237,192,0,0" Name="spot8Label" VerticalAlignment="Top" Width="43" IsHitTestVisible="False" />
+        <Label Content="" FontSize="40" Foreground="#FF5C5C5C" Height="56" HorizontalAlignment="Left" Margin="308,192,0,0" Name="spot9Label" VerticalAlignment="Top" Width="43" IsHitTestVisible="False" />
+          
+        <Label Height="153" HorizontalAlignment="Left" Margin="92,69,0,0" Name="resultLabel" VerticalAlignment="Top" Width="324" HorizontalContentAlignment="Center" Foreground="Black" FontSize="32" FontWeight="Normal" IsHitTestVisible="False" FontStyle="Normal" Visibility="Hidden" Content="You Win!">
+            <Label.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="White" Offset="1" />
+                    <GradientStop Color="#FFFFFF82" Offset="0" />
+                </LinearGradientBrush>
+            </Label.Background>
+        </Label>
+        <Button Content="Play Again" Height="23" HorizontalAlignment="Left" Margin="147,163,0,0" Name="playAgainButton" VerticalAlignment="Top" Width="75" Visibility="Hidden" />
+        <Button Content="Quit" Height="23" HorizontalAlignment="Left" Margin="276,163,0,0" Name="quitButton" VerticalAlignment="Top" Width="75" Visibility="Hidden" />
+        <Button Content="Forfeit" Height="23" HorizontalAlignment="Left" Margin="425,263,0,0" Name="forfeitButton" VerticalAlignment="Top" Width="75" Click="forfeitButton_Click" />
+    </Grid>
+</Page>

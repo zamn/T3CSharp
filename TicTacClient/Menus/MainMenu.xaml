@@ -1,0 +1,18 @@
+﻿<Page x:Class="TicTacClient.Menus.MainMenu"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="525"
+	Title="MainMenu" Loaded="OnLoad">
+
+    <Grid>
+        <Label Content="Main Menu" Height="41" HorizontalAlignment="Left" Margin="201,22,0,0" Name="label1" VerticalAlignment="Top" FontSize="16" />
+        <Button Content="Create Game" Height="23" HorizontalAlignment="Left" Margin="196,74,0,0" Name="createGameButton" VerticalAlignment="Top" Width="106" Click="createGameButton_Click" />
+        <Button Content="Join Game" Height="23" HorizontalAlignment="Left" Margin="196,117,0,0" Name="joinGameButton" VerticalAlignment="Top" Width="106" Click="joinGameButton_Click" />
+        <Button Content="Browse Games" Height="23" HorizontalAlignment="Left" Margin="196,160,0,0" Name="browseGamesButton" VerticalAlignment="Top" Width="106" Click="browseGamesButton_Click" />
+        <Button Content="User Settings" Height="23" HorizontalAlignment="Left" Margin="196,203,0,0" Name="userSettingsButton" VerticalAlignment="Top" Width="106" Click="userSettingsButton_Click" />
+        <Label Content="[Username] [Symbol]" Height="61" Margin="12,12,346,0" Name="usernameAndSymbolLabel" VerticalAlignment="Top" FontWeight="Normal" FontStyle="Italic" Width="167" />
+    </Grid>
+</Page>
