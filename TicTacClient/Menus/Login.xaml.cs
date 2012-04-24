@@ -30,29 +30,26 @@ namespace TicTacClient.Menus
             MainWindow = mainWindow;
         }
 
+        public void OnLoaded(object sender, EventArgs e)
+        {
+            this.usernameTextbox.Focus();
+        }
+
         private void Connect(object sender, RoutedEventArgs e)
         {
             connectBtn.IsEnabled = false;
             errorLabel.Content = "";
 
-            if (usernameTextbox.Text.Length > 10)
+            if (!symbolTextbox.Text.Equals("") && !usernameTextbox.Text.Equals(""))
             {
-                errorLabel.Content = "Username must not be longer than 10 characters!";
-            }
-            else if (symbolTextbox.Text.Length != 1)
-            {
-                errorLabel.Content = "Please use only one character for the symbol.";
+                if (usernameTextbox.Text.Length > 10)
+                    errorLabel.Content = "Username must not be longer than 10 characters!";
+                else
+                    AttemptConnect();
             }
             else
             {
-                if (!symbolTextbox.Text.Equals("") && !usernameTextbox.Text.Equals(""))
-                {
-                    AttemptConnect();
-                }
-                else
-                {
-                    errorLabel.Content = "Please fill in both text boxes, then try again.";
-                }
+                errorLabel.Content = "Please fill in both text boxes, then try again.";
             }
 
             connectBtn.IsEnabled = true;
@@ -60,16 +57,23 @@ namespace TicTacClient.Menus
 
         private void AttemptConnect()
         {
-            /*MainWindow.ChangeUserSettings(usernameTextbox.Text, symbolTextbox.Text[0]);
-            MainWindow.SwapPage(MenuPages.MainMenu);*/            
-            
-            if (ph.Connect("zamn.net", 6000, usernameTextbox.Text, symbolTextbox.Text[0]))
+            string username = usernameTextbox.Text;
+            if (username.Contains(" "))
+                username = username.Substring(0, username.IndexOf(" "));
+            if (ph.Connect("zamn.net", 6000, username, symbolTextbox.Text[0]))
             {
-                MainWindow.ChangeUserSettings(usernameTextbox.Text, symbolTextbox.Text[0]);
+                MainWindow.ChangeUserSettings(username, symbolTextbox.Text[0]);
                 MainWindow.SwapPage(MenuPages.MainMenu);
             }
             else
                 errorLabel.Content = "Cannot connect to server!";            
+        }
+
+        private void symbolTextbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            Key k = e.Key;
+            if (k.ToString().Equals("Return"))
+                Connect(this, e);
         }
     }
 }

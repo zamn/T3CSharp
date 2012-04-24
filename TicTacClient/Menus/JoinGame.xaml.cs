@@ -69,7 +69,6 @@ namespace TicTacClient.Menus
                         case 5:
                             errorLabel.Content = "ERROR! This game is full!";
                             break;
-
                     }
                 }
             }

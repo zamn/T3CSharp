@@ -88,12 +88,12 @@ namespace TicTacClient
         }
 
         /// <summary>
-        /// Attempts to join the game with the specified GameID.
+        /// Attempts to join the game with the specified Game ID.
         /// </summary>
-        /// <param name="GameID">The GameID of the game to join.</param>
+        /// <param name="GameID">The Game ID of the game to join.</param>
         /// <returns>
         /// -1: Not connected
-        /// 1: Invalid GameID
+        /// 1: Invalid Game ID.
         /// 3: Opponent has same symbol
         /// 4: Opponent has same nick
         /// 5: Game is full
@@ -111,12 +111,12 @@ namespace TicTacClient
                 sock.Receive(receiveInfo);                
 
                 if ((receiveInfo[0] & 15) == 7)
-                    return (receiveInfo[0] >> 4) * -1;
+                    return (receiveInfo[0] >> 4);
 
-                return receiveInfo[1];
+                return receiveInfo[0];
             }
 
-            return -6;
+            return -1;
         }
 
         /// <summary>
@@ -149,63 +149,92 @@ namespace TicTacClient
             return 0;
         }
 
-        // Returns an ArrayList populated of all the games on the server
-        // Returns null if not connected to the server!
+        /// <summary>
+        /// Gathers a list of all the active games currently on the server.
+        /// </summary>
+        /// <returns>
+        /// Returns an ArrayList populated of all the games on the server
+        /// Returns null if not connected to the server!
+        /// </returns>
         public ArrayList ListGames(int filter)
         {
             if (connected)
             {
-                ArrayList gl = new ArrayList();
-
-                byte[] info = new byte[1];
-                info[0] = Convert.ToByte(6);
-                sock.Send(info);
-
-                byte[] receiveInfo = new byte[1024];
-                sock.Receive(receiveInfo);
-
-                string nick = "";
-                int byteNum = 1,
-                    count = 0,
-                    gameID = 0,
-                    numPlayers = 0,
-                    nickLen = 0,
-                    i = 0;
-
-                while (receiveInfo[i] != 0)
+                try
                 {
-                    if (byteNum == 1) 
+                    ArrayList gl = new ArrayList();
+                    byte[] info = new byte[1];
+                    info[0] = Convert.ToByte(6);
+                    sock.Send(info);
+                    byte[] receiveInfo = new byte[1024];
+                    sock.Receive(receiveInfo);
+                    string nick = "";
+                    int byteNum = 1,
+                        count = 0,
+                        gameID = 0,
+                        numPlayers = 0,
+                        nickLen = 0,
+                        i = 0;
+                    while (receiveInfo[i] != 0)
                     {
-                        nickLen = receiveInfo[i] >> 4;
-                        numPlayers = receiveInfo[i] & 15;
+                        if (byteNum == 1)
+                        {
+                            nickLen = receiveInfo[i] >> 4;
+                            numPlayers = receiveInfo[i] & 15;
 
-                        if (numPlayers == 1)
-                            numPlayers = 2;
-                        else
-                            numPlayers = 1;
-                    }
-                    else if (byteNum == 2)
-                    {
-                        gameID = receiveInfo[i];
-                    }
-                    else if (count < nickLen-1)
-                    {
-                        nick += Convert.ToChar(receiveInfo[i]);
-                        count++;
-                    }
-                    else if (count == nickLen-1)
-                    {
-                        nick += Convert.ToChar(receiveInfo[i]);
-                        gl.Add(new Game(gameID, numPlayers, nick));
-                        byteNum = 0;
-                        count = 0;
-                        nick = "";
-                    }
+                            if (numPlayers == 1)
+                                numPlayers = 2;
+                            else
+                                numPlayers = 1;
+                        }
+                        else if (byteNum == 2)
+                        {
+                            gameID = receiveInfo[i];
+                        }
+                        else if (count < nickLen - 1)
+                        {
+                            nick += Convert.ToChar(receiveInfo[i]);
+                            count++;
+                        }
+                        else if (count == nickLen - 1)
+                        {
+                            nick += Convert.ToChar(receiveInfo[i]);
+                            gl.Add(new Game(gameID, numPlayers, nick));
+                            byteNum = 0;
+                            count = 0;
+                            nick = "";
+                        }
 
-                    byteNum++;
-                    i++;
+                        byteNum++;
+                        i++;
+                    }
+                    ArrayList newGL = new ArrayList();
+                    switch (filter)
+                    {
+                        case 0:
+                            newGL = gl;
+                            break;
+                        case 1:
+                            for (int x = 0; x < gl.Count; x++)
+                            {
+                                if (((Game)gl[x]).NumPlayers == 1)
+                                    newGL.Add(gl[x]);
+                            }
+                            break;
+                        case 2:
+                            for (int x = 0; x < gl.Count; x++)
+                            {
+                                if (((Game)gl[x]).NumPlayers == 2)
+                                    newGL.Add(gl[x]);
+                            }
+                            break;
+                    }
+                    return newGL;
                 }
-                return gl;
+                catch (SocketException e)
+                {
+                    return null;
+                }
             }
             return null;
         }

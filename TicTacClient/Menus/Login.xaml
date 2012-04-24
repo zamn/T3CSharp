@@ -5,14 +5,13 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       mc:Ignorable="d" 
       d:DesignHeight="350" d:DesignWidth="525"
-	Title="Login">
-    
+	Title="Login" Loaded="OnLoaded">
     <Grid>
         <Label Content="Tic Tac Toe Online" Height="28" HorizontalAlignment="Left" Margin="178,61,0,0" Name="label1" VerticalAlignment="Top" FontSize="16" />
         <Label Content="Choose a Username:" Height="28" HorizontalAlignment="Left" Margin="125,118,0,0" Name="label2" VerticalAlignment="Top" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="249,120,0,0" Name="usernameTextbox" VerticalAlignment="Top" Width="120" />
         <Label Content="Choose a Symbol:" Height="28" HorizontalAlignment="Left" Margin="139,152,0,0" Name="label3" VerticalAlignment="Top" />
-        <TextBox Height="23" HorizontalAlignment="Left" Margin="249,157,0,0" Name="symbolTextbox" VerticalAlignment="Top" Width="120" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="249,157,0,0" Name="symbolTextbox" VerticalAlignment="Top" Width="120" KeyDown="symbolTextbox_KeyDown" />
         <Button Content="Connect" Height="23" HorizontalAlignment="Left" Margin="211,209,0,0" Name="connectBtn" VerticalAlignment="Top" Width="75" Background="#17000000" Click="Connect"></Button>
         <Label Height="28" HorizontalAlignment="Left" Margin="125,253,0,0" Name="errorLabel" VerticalAlignment="Top" Width="288" Foreground="Red" />
     </Grid>

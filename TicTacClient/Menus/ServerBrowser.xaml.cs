@@ -33,7 +33,14 @@ namespace TicTacClient.Menus
         private void LoadServerBrowser(object sender, RoutedEventArgs e)
         {
             ArrayList gl = ph.ListGames(0);
-            serverGrid.ItemsSource = gl;
+            if (gl != null)
+                serverGrid.ItemsSource = gl;
+            else
+            {
+                gl = new ArrayList();
+                serverGrid.ItemsSource = gl;
+            }
+            
         }
 
         private void cancelButton_Click(object sender, RoutedEventArgs e)
@@ -41,9 +48,21 @@ namespace TicTacClient.Menus
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
 
-        private void radioButton1_Checked(object sender, RoutedEventArgs e)
+        private void refreshBtn_Click(object sender, RoutedEventArgs e)
         {
+            ArrayList gl = new ArrayList();
+            if (fullRadio.IsChecked == true)
+                gl = ph.ListGames(2);
+            else if (singleRadio.IsChecked == true)
+                gl = ph.ListGames(1);
+            else if (anyRadio.IsChecked == true)
+                gl = ph.ListGames(0);
+            serverGrid.ItemsSource = gl;
+        }
 
+        private void connectBtn_Click(object sender, RoutedEventArgs e)
+        {
+            //serverGrid.SelectedCells;
         }        
     }
 }

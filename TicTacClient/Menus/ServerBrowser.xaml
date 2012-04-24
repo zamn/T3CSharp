@@ -5,16 +5,16 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="525"
-	Title="ServerBrowser" Loaded="LoadServerBrowser">
+	Title="ServerBrowser">
     
     <Grid>
-        <DataGrid AutoGenerateColumns="True" Height="155" HorizontalAlignment="Center" Margin="31,82,26,63" Name="serverGrid" VerticalAlignment="Center" Width="468" CanUserResizeColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False" MinColumnWidth="150" CanUserResizeRows="False" />
+        <DataGrid AutoGenerateColumns="True" Height="155" HorizontalAlignment="Center" Margin="31,82,26,63" Name="serverGrid" VerticalAlignment="Center" Width="468" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False" CanUserSortColumns="False" MinColumnWidth="150" CanUserResizeRows="False" SelectionMode="Single"/>
         <Button Content="Back" Height="23" HorizontalAlignment="Left" Margin="320,265,0,0" Name="backBtn" VerticalAlignment="Top" Width="75" Click="cancelButton_Click" />
         <Label Content="Server Browser" Height="36" HorizontalAlignment="Left" Margin="195,15,0,0" Name="label1" VerticalAlignment="Top" FontSize="18" />
-        <RadioButton Content="Empty Games" Height="16" HorizontalAlignment="Left" Margin="226,60,0,224" Name="emptyRadio" VerticalAlignment="Stretch" Checked="radioButton1_Checked" />
+        <RadioButton Content="Single Games" Height="16" HorizontalAlignment="Left" Margin="226,60,0,224" Name="singleRadio" VerticalAlignment="Stretch" />
         <RadioButton Content="Full Games" Height="16" HorizontalAlignment="Left" Margin="32,60,0,224" Name="fullRadio" VerticalAlignment="Stretch" />
         <RadioButton Content="Any Games" Height="16" HorizontalAlignment="Right" Margin="0,60,26,224" Name="anyRadio" VerticalAlignment="Stretch" IsChecked="True" />
-        <Button Content="Connect" Height="23" IsEnabled="False" HorizontalAlignment="Left" Margin="137,265,0,0" Name="connectBtn" VerticalAlignment="Top" Width="75" />
-        <Button Content="Refresh" Height="23" HorizontalAlignment="Left" Margin="226,265,0,0" Name="refreshBtn" VerticalAlignment="Top" Width="75" />
+        <Button Content="Connect" Height="23" HorizontalAlignment="Left" Margin="137,265,0,0" Name="connectBtn" VerticalAlignment="Top" Width="75" Click="connectBtn_Click" />
+        <Button Content="Refresh" Height="23" HorizontalAlignment="Left" Margin="226,265,0,0" Name="refreshBtn" VerticalAlignment="Top" Width="75" Click="refreshBtn_Click" />
     </Grid>
 </Page>
