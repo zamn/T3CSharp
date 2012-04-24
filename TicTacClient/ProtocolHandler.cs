@@ -92,7 +92,7 @@ namespace TicTacClient
         /// </summary>
         /// <param name="GameID">The GameID of the game to join.</param>
         /// <returns>
-        /// -6: Not connected
+        /// -1: Not connected
         /// 1: Invalid GameID
         /// 3: Opponent has same symbol
         /// 4: Opponent has same nick
