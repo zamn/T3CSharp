@@ -48,9 +48,6 @@ namespace TicTacClient
 
         public void ChangeUserSettings(string username, char symbol)
         {
-            ProtocolHandler.SetNick(username);
-            ProtocolHandler.SetSymbol(symbol);
-
             Player.ChangeNick(username);
             Player.ChangeSymbol(symbol);
         }

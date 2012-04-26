@@ -36,12 +36,27 @@ namespace TicTacClient.Menus
 
         private void saveButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow.ChangeUserSettings(usernameTextbox.Text, symbolTextbox.Text[0]);
-            MainWindow.SwapPage(MenuPages.MainMenu);
+            string username = usernameTextbox.Text.Trim();
+            if (username.Contains(" "))
+            {
+                username = username.Substring(0, username.IndexOf(" "));
+            }
+            if (!username.Equals("") && !symbolTextbox.Text.Equals(""))
+            {
+                MainWindow.ChangeUserSettings(username, symbolTextbox.Text[0]);
+                ph.SetNick(username);
+                ph.SetSymbol(symbolTextbox.Text[0]);
+                MainWindow.SwapPage(MenuPages.MainMenu);
+            }
+            else
+            {
+                errorLabel.Content = "ERROR! Please fill in both text fields and try again.";
+            }
         }
 
         private void cancelButton_Click(object sender, RoutedEventArgs e)
         {
+            errorLabel.Content = "";
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
     }

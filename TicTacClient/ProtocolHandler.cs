@@ -139,14 +139,35 @@ namespace TicTacClient
             return opponent;
         }
 
-        public bool SendMove(int spot)
+        /// <summary>
+        /// Sends the move specified to the opponent.
+        /// </summary>
+        /// <param name="spot">The position the player wants to move.</param>
+        public void SendMove(int spot)
         {
-            return false;
+            byte[] info = new byte[10];
+            info[0] = Convert.ToByte(spot << 4);
+            info[0] |= 5;
+            sock.Send(info);
         }
 
+        /// <summary>
+        /// Gets the opponents move.
+        /// </summary>
+        /// <returns>
+        /// Returns the gameid of the game specified.
+        /// Returns 0 on opponent quit.
+        /// Returns -1 on fail.
+        /// </returns>
         public int GetMove()
         {
-            return 0;
+            byte[] receiveInfo = new byte[10];
+            sock.Receive(receiveInfo);
+            if ((receiveInfo[0] & 240) == 5)
+                return Convert.ToInt32(receiveInfo) >> 4;
+            else if ((receiveInfo[0] & 240) == 10)
+                return 0;
+            return -1;
         }
 
         /// <summary>
@@ -239,18 +260,62 @@ namespace TicTacClient
             return null;
         }
 
+        /// <summary>
+        /// Sets the nickname on the server side.
+        /// </summary>
+        /// <param name="nick">The new nickname.</param>
+        /// <returns>Returns true if the server successfully changed nickname.</returns>
         public bool SetNick(string nick)
         {
+            byte[] info = new byte[10];
+            info[0] = Convert.ToByte(nick.Length << 4);
+            info[0] |= 8;
+            for (int i = 1; i <= nick.Length; i++)
+            {
+                info[i] = Convert.ToByte(nick[i - 1]);
+            }
+            sock.Send(info);
+            byte[] receiveInfo = new byte[20];
+            sock.Receive(receiveInfo);
+            if ((receiveInfo[0] & 240) == 7)
+                return false;
+            else if ((receiveInfo[0] & 240) == 2)
+                return true;
+
             return false;
         }
 
+        /// <summary>
+        /// Sets the symbol on the server side.
+        /// </summary>
+        /// <param name="symbol">The new symbol to be used.</param>
+        /// <returns></returns>
         public bool SetSymbol(char symbol)
         {
+            byte[] info = new byte[10];
+            info[0] = 9;
+            info[1] = Convert.ToByte(symbol);
+            sock.Send(info);
+            byte[] receiveInfo = new byte[10];
+            sock.Receive(receiveInfo);
+            if ((receiveInfo[0] & 240) == 7)
+                return false;
+            else if ((receiveInfo[0] & 240) == 2)
+                return true;
+
             return false;
         }
 
+        /// <summary>
+        /// Leaves the game you are currently in.
+        /// </summary>
+        /// <param name="GameID">The game you are currently in.</param>
+        /// <returns>Returns true if you have successfully left the game, false otherwise.</returns>
         public bool LeaveGame(int GameID)
         {
+            byte[] info = new byte[10];
+            info[0] = 10;
+            sock.Send(info);
             return false;
         }
 

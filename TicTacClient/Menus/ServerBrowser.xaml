@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="525"
-	Title="ServerBrowser">
+	Title="ServerBrowser" Loaded="LoadServerBrowser">
     
     <Grid>
         <DataGrid AutoGenerateColumns="True" Height="155" HorizontalAlignment="Center" Margin="31,82,26,63" Name="serverGrid" VerticalAlignment="Center" Width="468" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False" CanUserSortColumns="False" MinColumnWidth="150" CanUserResizeRows="False" SelectionMode="Single"/>

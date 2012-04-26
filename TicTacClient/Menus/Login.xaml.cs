@@ -57,7 +57,7 @@ namespace TicTacClient.Menus
 
         private void AttemptConnect()
         {
-            string username = usernameTextbox.Text;
+            string username = usernameTextbox.Text.Trim();
             if (username.Contains(" "))
                 username = username.Substring(0, username.IndexOf(" "));
             if (ph.Connect("zamn.net", 6000, username, symbolTextbox.Text[0]))
