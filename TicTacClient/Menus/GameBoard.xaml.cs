@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Net.Sockets;
 
 namespace TicTacClient.Menus
 {
@@ -20,6 +21,7 @@ namespace TicTacClient.Menus
     public partial class GameBoard : Page, IMenuPages
     {
         public MainWindow MainWindow { get; private set; }
+        public SocketAsyncEventArgs SocketArgs { get; private set; }
 
         /// <summary>
         /// A list containing the 9 spots on a tic-tac-toe board.        
@@ -65,15 +67,10 @@ namespace TicTacClient.Menus
 
             MainWindow = mainWindow;
             this.ph = ph;
+            SocketArgs = ph.GetMoveArgs();
+            SocketArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ReceiveOpponentsMove);
+
             this.thisPlayersTurn = thisPlayersTurn;
-
-            if (!thisPlayersTurn)
-            {
-                playerLabel.FontWeight = FontWeights.Normal;
-                opponentLabel.FontWeight = FontWeights.Bold;
-                statusLabel.Content = "Waiting on opponent..."; 
-            }
-
 
             Board = new List<GameBoardSpot>()
             {
@@ -92,7 +89,16 @@ namespace TicTacClient.Menus
             Opponent = opponent;
 
             playerLabel.Content = String.Format("{0}({1})", Player.Nickname, Player.Symbol);
-            opponentLabel.Content = String.Format("{0}({1})", Opponent.Nickname, Opponent.Symbol);            
+            opponentLabel.Content = String.Format("{0}({1})", Opponent.Nickname, Opponent.Symbol);
+
+            if (!thisPlayersTurn)
+            {
+                playerLabel.FontWeight = FontWeights.Normal;
+                opponentLabel.FontWeight = FontWeights.Bold;
+                statusLabel.Content = "Waiting on opponent...";
+
+                ph.GetMove(SocketArgs);
+            }
         }
 
         private void SelectSpot(object sender, MouseButtonEventArgs e)
@@ -102,25 +108,37 @@ namespace TicTacClient.Menus
                 Rectangle selectedSpot = (Rectangle)sender;
                 int spotNumber = int.Parse(selectedSpot.Name.Substring(4));
 
-                //Will return false if this spot is filled already.
-                if (Board[spotNumber - 1].AttemptMove(CurrentPlayer))
-                {
-                    //Checks to see if the current player has won.
-                    if (CheckForWin() == false)
-                    {
-                        //If not, change turns.
-                        ChangeTurn();
-                    }
-                    else
-                    {
-                        //If they've won, end the game.
-                        EndGame();
-                    }
-                }
+                UpdateGameboard(spotNumber);
             }
         }
 
-        private void ChangeTurn()
+        private void ReceiveOpponentsMove(object o, SocketAsyncEventArgs args)
+        {
+            int spot = (int)args.UserToken;
+
+            this.Dispatcher.Invoke((Action<int>)UpdateGameboard, spot);
+        }
+
+        private void UpdateGameboard(int spot)
+        {
+            //Will return false if this spot is filled already.
+            if (Board[spot - 1].AttemptMove(CurrentPlayer))
+            {
+                //Checks to see if the current player has won.
+                if (CheckForWin() == false)
+                {
+                    //If not, change turns.
+                    ChangeTurn(spot);
+                }
+                else
+                {
+                    //If they've won, end the game.
+                    EndGame();
+                }                
+            }            
+        }
+
+        private void ChangeTurn(int spot)
         {
             thisPlayersTurn = !thisPlayersTurn;
 
@@ -132,10 +150,14 @@ namespace TicTacClient.Menus
             }
             else
             {
+                ph.SendMove(spot);
+
                 playerLabel.FontWeight = FontWeights.Normal;
                 opponentLabel.FontWeight = FontWeights.Bold;
-                statusLabel.Content = "Waiting on opponent...";                
-            }            
+                statusLabel.Content = "Waiting on opponent...";
+
+                ph.GetMove(SocketArgs);
+            }      
         }
 
         private bool CheckForWin()
@@ -162,7 +184,21 @@ namespace TicTacClient.Menus
             resultLabel.Visibility = Visibility.Visible;
             playAgainButton.Visibility = System.Windows.Visibility.Visible;
             quitButton.Visibility = System.Windows.Visibility.Visible;
-            resultLabel.Content = "You Win!";
+            
+            if (thisPlayersTurn)
+            {
+                resultLabel.Content = "You Win!";
+                Player.AddWin();
+                Opponent.AddLoss();
+            }
+            else
+            {
+                resultLabel.Content = "You Lose!";
+                Player.AddLoss();
+                Opponent.AddWin();
+            }
+
+            scoreLabel.Content = String.Format("{0} - {1}", Player.Wins, Opponent.Wins);
 
             gameOver = true;
         }

@@ -152,22 +152,32 @@ namespace TicTacClient
         }
 
         /// <summary>
-        /// Gets the opponents move.
+        /// Generates EventArgs for sending moves to the opponent.
         /// </summary>
-        /// <returns>
-        /// Returns the gameid of the game specified.
-        /// Returns 0 on opponent quit.
-        /// Returns -1 on fail.
-        /// </returns>
-        public int GetMove()
+        /// <returns></returns>
+        public SocketAsyncEventArgs GetMoveArgs()
         {
-            byte[] receiveInfo = new byte[10];
-            sock.Receive(receiveInfo);
-            if ((receiveInfo[0] & 240) == 5)
-                return Convert.ToInt32(receiveInfo) >> 4;
-            else if ((receiveInfo[0] & 240) == 10)
-                return 0;
-            return -1;
+            SocketAsyncEventArgs e = new SocketAsyncEventArgs();
+            byte[] buffer = new byte[10];            
+            e.SetBuffer(buffer, 0, 10);
+
+            e.Completed += delegate(object o, SocketAsyncEventArgs se)
+            {
+                byte[] receiveInfo = se.Buffer;
+                se.UserToken = Convert.ToInt32(receiveInfo[0] >> 4);
+            };
+            
+            return e;
+        }
+
+        /// <summary>
+        /// Puts in a request to get the opponent's next move using the
+        /// specified SockeyAsyncEventArgs.
+        /// </summary>
+        /// <param name="e">The arguments to use in the connection.</param>
+        public void GetMove(SocketAsyncEventArgs e)
+        {            
+            sock.ReceiveAsync(e);
         }
 
         /// <summary>
@@ -252,7 +262,7 @@ namespace TicTacClient
                     }
                     return newGL;
                 }
-                catch (SocketException e)
+                catch (SocketException)
                 {
                     return null;
                 }
