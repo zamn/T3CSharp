@@ -42,5 +42,11 @@ namespace TicTacClient
 
             return false;
         }
+
+        public void Reset()
+        {
+            Symbol = ' ';
+            Label.Content = "";
+        }
     }
 }

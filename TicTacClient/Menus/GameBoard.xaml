@@ -40,8 +40,8 @@
                 </LinearGradientBrush>
             </Label.Background>
         </Label>
-        <Button Content="Play Again" Height="23" HorizontalAlignment="Left" Margin="147,163,0,0" Name="playAgainButton" VerticalAlignment="Top" Width="75" Visibility="Hidden" />
-        <Button Content="Quit" Height="23" HorizontalAlignment="Left" Margin="276,163,0,0" Name="quitButton" VerticalAlignment="Top" Width="75" Visibility="Hidden" />
+        <Button Content="Play Again" Height="23" HorizontalAlignment="Left" Margin="147,163,0,0" Name="playAgainButton" VerticalAlignment="Top" Width="75" Visibility="Hidden" Click="playAgainButton_Click" />
+        <Button Content="Quit" Height="23" HorizontalAlignment="Left" Margin="276,163,0,0" Name="quitButton" VerticalAlignment="Top" Width="75" Visibility="Hidden" Click="quitButton_Click" />
         <Button Content="Forfeit" Height="23" HorizontalAlignment="Left" Margin="425,263,0,0" Name="forfeitButton" VerticalAlignment="Top" Width="75" Click="forfeitButton_Click" />
         <Label Content="0 - 0" Height="28" HorizontalAlignment="Left" Margin="237,10,0,0" Name="scoreLabel" VerticalAlignment="Top" />
     </Grid>

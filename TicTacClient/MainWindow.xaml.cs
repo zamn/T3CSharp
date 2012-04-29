@@ -38,12 +38,12 @@ namespace TicTacClient
             menuPages.Add(MenuPages.Login, new Menus.Login(this, ProtocolHandler));            
             this.Content = menuPages[MenuPages.Login];
 
-            //Build other menu pages.
+            //Build other menu pages.GenerateGameID();
             menuPages.Add(MenuPages.CreateGame, new Menus.CreateGame(this, ProtocolHandler));
             menuPages.Add(MenuPages.JoinGame, new Menus.JoinGame(this, ProtocolHandler));
             menuPages.Add(MenuPages.MainMenu, new Menus.MainMenu(this, ProtocolHandler));
             menuPages.Add(MenuPages.ServerBrowser, new Menus.ServerBrowser(this, ProtocolHandler));
-            menuPages.Add(MenuPages.Settings, new Menus.Settings(this, ProtocolHandler));            
+            menuPages.Add(MenuPages.Settings, new Menus.Settings(this, ProtocolHandler));
         }
 
         public void ChangeUserSettings(string username, char symbol)
@@ -52,9 +52,14 @@ namespace TicTacClient
             Player.ChangeSymbol(symbol);
         }
 
-        public void GenerateNewGame(Player opponent, bool thisPlayersTurn)
+        public void RecreateGame()
         {
-            menuPages.Add(MenuPages.InGame, new Menus.GameBoard(this, ProtocolHandler, Player, opponent, thisPlayersTurn));
+            menuPages[MenuPages.CreateGame] = new Menus.CreateGame(this, ProtocolHandler);
+        }
+
+        public void GenerateNewGame(Player opponent, bool thisPlayersTurn, int gameID)
+        {
+            menuPages.Add(MenuPages.InGame, new Menus.GameBoard(this, ProtocolHandler, Player, opponent, thisPlayersTurn, gameID));
             this.Content = menuPages[MenuPages.InGame];
         }
 

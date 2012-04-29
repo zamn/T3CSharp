@@ -37,7 +37,7 @@ namespace TicTacClient.Menus
         }
 
         private void connectButton_Click(object sender, RoutedEventArgs e)
-        {   
+        {
             string gameID = gameIDTextbox.Text;
             errorLabel.Content = "";
 
@@ -48,7 +48,7 @@ namespace TicTacClient.Menus
                 if (serverResponse == 2)
                 {
                     Player opponent = ph.GetOpponent();
-                    MainWindow.GenerateNewGame(opponent, false);
+                    MainWindow.GenerateNewGame(opponent, false, Convert.ToInt32(gameID));
                 }
                 else
                 {

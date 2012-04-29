@@ -62,7 +62,9 @@ namespace TicTacClient.Menus
 
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
-            //serverGrid.SelectedCells;
+            IList<DataGridCellInfo> items = serverGrid.SelectedCells;
+            MessageBox.Show(((Game)items[1].Item).Player1);
+            MessageBox.Show(items.Count.ToString());
         }        
     }
 }

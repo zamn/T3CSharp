@@ -26,6 +26,7 @@ namespace TicTacClient.Menus
         Action _waitingAction;
         Thread _waitingOperation;
         bool _isFocus;
+        int gameID = -1;
 
         public CreateGame(MainWindow mainWindow, ProtocolHandler ph)
         {
@@ -58,7 +59,7 @@ namespace TicTacClient.Menus
                         if (_isFocus)
                         {
                             Player opponent = (Player)this.Dispatcher.Invoke((Func<Player>)(() => ph.GetOpponent()));
-                            this.Dispatcher.Invoke((Action)(() => MainWindow.GenerateNewGame(opponent, true)));
+                            this.Dispatcher.Invoke((Action)(() => MainWindow.GenerateNewGame(opponent, true, gameID)));
                         }
                     }
                     catch (NullReferenceException) { }
@@ -77,6 +78,7 @@ namespace TicTacClient.Menus
             _waitingOperation.Start();
 
             int newGameID = ph.Create();
+            gameID = newGameID;
             gameIDLabel.Content = String.Format("Your GameID is {0}.", newGameID);                        
         }
 

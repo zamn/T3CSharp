@@ -164,7 +164,11 @@ namespace TicTacClient
             e.Completed += delegate(object o, SocketAsyncEventArgs se)
             {
                 byte[] receiveInfo = se.Buffer;
-                se.UserToken = Convert.ToInt32(receiveInfo[0] >> 4);
+                int move = Convert.ToInt32(receiveInfo[0]);
+                if (((move & 15) == 7) && ((move >> 4) == 6))
+                    se.UserToken = -1;
+                else
+                    se.UserToken = Convert.ToInt32(receiveInfo[0] >> 4);
             };
             
             return e;
@@ -327,6 +331,25 @@ namespace TicTacClient
             info[0] = 10;
             sock.Send(info);
             return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="decision">Players decision on Play Again?</param>
+        /// <returns></returns>
+        public int SendReplay(int decision)
+        {
+            byte[] info = new byte[10];
+            info[0] = Convert.ToByte(decision << 4);
+            info[1] |= 11;
+            byte[] receiveInfo = new byte[10];
+            sock.Receive(receiveInfo);
+            if ((receiveInfo[0] & 15) == 11)
+            {
+                return ((receiveInfo[0] & 240) >> 4);
+            }
+            return -1;
         }
 
 

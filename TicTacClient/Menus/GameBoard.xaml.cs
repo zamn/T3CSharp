@@ -16,6 +16,11 @@ using System.Net.Sockets;
 namespace TicTacClient.Menus
 {
     /// <summary>
+    /// Decision enum for clarity.
+    /// </summary>
+    public enum Decision { NO, YES };
+
+    /// <summary>
     /// Interaction logic for GameBoard.xaml
     /// </summary>
     public partial class GameBoard : Page, IMenuPages
@@ -37,6 +42,11 @@ namespace TicTacClient.Menus
         /// The player connecting to this game from another client.
         /// </summary>
         public Player Opponent { get; private set; }
+
+        /// <summary>
+        /// The Game ID for the game the 2 players are playing in.
+        /// </summary>
+        public int GameID { get; set; }
 
         /// <summary>
         /// The player whose turn it currently is.
@@ -61,10 +71,11 @@ namespace TicTacClient.Menus
         /// <param name="ph">The ProtocolHandler used to stage connections.</param>
         /// <param name="thisPlayer">The player using this client.</param>
         /// <param name="opponent">The opponent of the player using this client.</param>
-        public GameBoard(MainWindow mainWindow, ProtocolHandler ph, Player thisPlayer, Player opponent, bool thisPlayersTurn)
+        public GameBoard(MainWindow mainWindow, ProtocolHandler ph, Player thisPlayer, Player opponent, bool thisPlayersTurn, int GameID)
         {
             InitializeComponent();
 
+            this.GameID = GameID;
             MainWindow = mainWindow;
             this.ph = ph;
             SocketArgs = ph.GetMoveArgs();
@@ -115,27 +126,39 @@ namespace TicTacClient.Menus
         private void ReceiveOpponentsMove(object o, SocketAsyncEventArgs args)
         {
             int spot = (int)args.UserToken;
-
             this.Dispatcher.Invoke((Action<int>)UpdateGameboard, spot);
         }
 
         private void UpdateGameboard(int spot)
         {
             //Will return false if this spot is filled already.
-            if (Board[spot - 1].AttemptMove(CurrentPlayer))
+            if (spot == -1)
             {
-                //Checks to see if the current player has won.
-                if (CheckForWin() == false)
+                resultLabel.Visibility = Visibility.Visible;
+                playAgainButton.Visibility = System.Windows.Visibility.Visible;
+                quitButton.Visibility = System.Windows.Visibility.Visible;
+
+                resultLabel.Content = "Opponent Quit!";
+                //Opponent = 
+            }
+            else
+            {
+                if (Board[spot - 1].AttemptMove(CurrentPlayer))
                 {
-                    //If not, change turns.
-                    ChangeTurn(spot);
+                    //Checks to see if the current player has won.
+                    if (CheckForWin() == false)
+                    {
+                        //If not, change turns.
+                        ChangeTurn(spot);
+                    }
+                    else
+                    {
+                        //If they've won, end the game.
+                        ph.SendMove(spot);
+                        EndGame();
+                    }
                 }
-                else
-                {
-                    //If they've won, end the game.
-                    EndGame();
-                }                
-            }            
+            }
         }
 
         private void ChangeTurn(int spot)
@@ -205,7 +228,25 @@ namespace TicTacClient.Menus
 
         private void forfeitButton_Click(object sender, RoutedEventArgs e)
         {
+            ph.LeaveGame(GameID); // Leaves current game for player
+            MainWindow.SwapPage(MenuPages.MainMenu);
+        }
 
+        private void playAgainButton_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < Board.Count; i++)
+            {
+                Board[i].Reset();
+            }
+            ph.SendReplay((int)Decision.YES);
+        }
+
+        private void quitButton_Click(object sender, RoutedEventArgs e)
+        {
+            ph.LeaveGame(GameID);
+            ph.SendReplay((int)Decision.NO);
+            MainWindow.RecreateGame();
+            MainWindow.SwapPage(MenuPages.MainMenu);
         }
     }
 }
