@@ -45,7 +45,7 @@ namespace TicTacClient
 
         public void Reset()
         {
-            Symbol = ' ';
+            Symbol = default(char);
             Label.Content = "";
         }
     }

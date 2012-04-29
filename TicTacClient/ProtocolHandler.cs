@@ -334,7 +334,7 @@ namespace TicTacClient
         }
 
         /// <summary>
-        /// 
+        /// Inform other player whether or not you desire a rematch.
         /// </summary>
         /// <param name="decision">Players decision on Play Again?</param>
         /// <returns></returns>
@@ -351,7 +351,5 @@ namespace TicTacClient
             }
             return -1;
         }
-
-
     }
 }

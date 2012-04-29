@@ -63,8 +63,36 @@ namespace TicTacClient.Menus
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
             IList<DataGridCellInfo> items = serverGrid.SelectedCells;
-            MessageBox.Show(((Game)items[1].Item).Player1);
-            MessageBox.Show(items.Count.ToString());
+
+            int gameID = (items[1].Item as Game).GameID;
+
+            int serverResponse = ph.Join(gameID);
+            if (serverResponse == 2)
+            {
+                Player opponent = ph.GetOpponent();
+                MainWindow.GenerateNewGame(opponent, false, gameID);
+            }
+            else
+            {
+                switch (serverResponse)
+                {
+                    case -1:
+                        MessageBox.Show("FATAL ERROR! You are not connected to the server. Please close this application.");
+                        break;
+                    case 1:
+                        MessageBox.Show("ERROR! There is no game with this GameID.");
+                        break;
+                    case 3:
+                        MessageBox.Show("ERROR! This game's owner and you share the same symbol!");
+                        break;
+                    case 4:
+                        MessageBox.Show("ERROR! This game's owner and you share the same nickname!");
+                        break;
+                    case 5:
+                        MessageBox.Show("ERROR! This game is full!");
+                        break;
+                }
+            }
         }        
     }
 }

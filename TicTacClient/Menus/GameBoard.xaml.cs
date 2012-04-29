@@ -78,6 +78,7 @@ namespace TicTacClient.Menus
             this.GameID = GameID;
             MainWindow = mainWindow;
             this.ph = ph;
+
             SocketArgs = ph.GetMoveArgs();
             SocketArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ReceiveOpponentsMove);
 
@@ -131,15 +132,14 @@ namespace TicTacClient.Menus
 
         private void UpdateGameboard(int spot)
         {
-            //Will return false if this spot is filled already.
+            //Server return -1 when an opponent has quit.
             if (spot == -1)
             {
                 resultLabel.Visibility = Visibility.Visible;
                 playAgainButton.Visibility = System.Windows.Visibility.Visible;
                 quitButton.Visibility = System.Windows.Visibility.Visible;
 
-                resultLabel.Content = "Opponent Quit!";
-                //Opponent = 
+                resultLabel.Content = "Opponent Quit!";                
             }
             else
             {
@@ -211,13 +211,11 @@ namespace TicTacClient.Menus
             if (thisPlayersTurn)
             {
                 resultLabel.Content = "You Win!";
-                Player.AddWin();
-                Opponent.AddLoss();
+                Player.AddWin();                
             }
             else
             {
-                resultLabel.Content = "You Lose!";
-                Player.AddLoss();
+                resultLabel.Content = "You Lose!";                
                 Opponent.AddWin();
             }
 
@@ -245,7 +243,7 @@ namespace TicTacClient.Menus
         {
             ph.LeaveGame(GameID);
             ph.SendReplay((int)Decision.NO);
-            MainWindow.RecreateGame();
+            
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
     }

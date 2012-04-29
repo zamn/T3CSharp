@@ -52,11 +52,6 @@ namespace TicTacClient
             Player.ChangeSymbol(symbol);
         }
 
-        public void RecreateGame()
-        {
-            menuPages[MenuPages.CreateGame] = new Menus.CreateGame(this, ProtocolHandler);
-        }
-
         public void GenerateNewGame(Player opponent, bool thisPlayersTurn, int gameID)
         {
             menuPages.Add(MenuPages.InGame, new Menus.GameBoard(this, ProtocolHandler, Player, opponent, thisPlayersTurn, gameID));
@@ -65,6 +60,9 @@ namespace TicTacClient
 
         public void SwapPage(MenuPages page)
         {
+            if (page == MenuPages.CreateGame)
+                (menuPages[MenuPages.CreateGame] as Menus.CreateGame).GenerateGameID();
+
             this.Content = menuPages[page];
         }
     }
