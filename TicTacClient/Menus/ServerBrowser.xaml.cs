@@ -62,11 +62,18 @@ namespace TicTacClient.Menus
 
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
+            int gameID = 0;
+            int serverResponse;
             IList<DataGridCellInfo> items = serverGrid.SelectedCells;
 
-            int gameID = (items[1].Item as Game).GameID;
+            if (items.Count == 0)
+                serverResponse = 6;
+            else
+            {
+                gameID = (items[1].Item as Game).GameID;
+                serverResponse = ph.Join(gameID);
+            }
 
-            int serverResponse = ph.Join(gameID);
             if (serverResponse == 2)
             {
                 Player opponent = ph.GetOpponent();
@@ -90,6 +97,9 @@ namespace TicTacClient.Menus
                         break;
                     case 5:
                         MessageBox.Show("ERROR! This game is full!");
+                        break;
+                    case 6:
+                        MessageBox.Show("Please select a valid game!");
                         break;
                 }
             }

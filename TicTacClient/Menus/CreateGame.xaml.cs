@@ -68,6 +68,7 @@ namespace TicTacClient.Menus
 
         private void backButton_Click(object sender, RoutedEventArgs e)
         {
+            ph.LeaveGame();
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
 

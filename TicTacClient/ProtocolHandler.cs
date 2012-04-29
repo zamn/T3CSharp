@@ -6,6 +6,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using System.Windows;
+using TicTacClient.Menus;
 
 namespace TicTacClient
 {
@@ -67,6 +68,7 @@ namespace TicTacClient
         /// The Game ID as an int, OR 
         /// 0 if there are no more spaces left on the server for new games, OR 
         /// -1 if you are not connected.
+        /// -2 if there are no free games open.
         /// </returns>
         public int Create()
         {
@@ -324,32 +326,34 @@ namespace TicTacClient
         /// Leaves the game you are currently in.
         /// </summary>
         /// <param name="GameID">The game you are currently in.</param>
-        /// <returns>Returns true if you have successfully left the game, false otherwise.</returns>
-        public bool LeaveGame(int GameID)
+        public void LeaveGame()
         {
             byte[] info = new byte[10];
-            info[0] = 10;
+            info[0] |= 10;
             sock.Send(info);
-            return false;
         }
-
+        
         /// <summary>
         /// Inform other player whether or not you desire a rematch.
         /// </summary>
         /// <param name="decision">Players decision on Play Again?</param>
         /// <returns></returns>
-        public int SendReplay(int decision)
+        public Decision SendReplay(Decision decision)
         {
             byte[] info = new byte[10];
-            info[0] = Convert.ToByte(decision << 4);
+            info[0] = Convert.ToByte((int)decision << 4);
             info[1] |= 11;
+            sock.Send(info);
             byte[] receiveInfo = new byte[10];
             sock.Receive(receiveInfo);
             if ((receiveInfo[0] & 15) == 11)
             {
-                return ((receiveInfo[0] & 240) >> 4);
+                if (((receiveInfo[0] & 240) >> 4) == 0)
+                    return Decision.NO;
+                else
+                    return Decision.YES;
             }
-            return -1;
+            return Decision.INVALID;
         }
     }
 }

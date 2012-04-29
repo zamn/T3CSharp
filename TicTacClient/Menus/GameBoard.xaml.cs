@@ -18,7 +18,7 @@ namespace TicTacClient.Menus
     /// <summary>
     /// Decision enum for clarity.
     /// </summary>
-    public enum Decision { NO, YES };
+    public enum Decision { NO = 0, YES = 1, INVALID = -1 };
 
     /// <summary>
     /// Interaction logic for GameBoard.xaml
@@ -226,7 +226,7 @@ namespace TicTacClient.Menus
 
         private void forfeitButton_Click(object sender, RoutedEventArgs e)
         {
-            ph.LeaveGame(GameID); // Leaves current game for player
+            ph.LeaveGame(); // Leaves current game for player
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
 
@@ -236,13 +236,13 @@ namespace TicTacClient.Menus
             {
                 Board[i].Reset();
             }
-            ph.SendReplay((int)Decision.YES);
+            ph.SendReplay(Decision.YES);
         }
 
         private void quitButton_Click(object sender, RoutedEventArgs e)
         {
-            ph.LeaveGame(GameID);
-            ph.SendReplay((int)Decision.NO);
+            ph.LeaveGame();
+            ph.SendReplay(Decision.NO);
             
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
