@@ -74,7 +74,7 @@ namespace TicTacClient.Menus
 
         public void GenerateGameID()
         {
-            if (_waitingOperation.IsAlive == false)
+            if (_waitingOperation.IsAlive == false)  // fix diz bug!
             {
                 _waitingOperation = new Thread(_waitingAction.Invoke);
                 _waitingOperation.Start();

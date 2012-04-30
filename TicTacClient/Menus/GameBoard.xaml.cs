@@ -63,7 +63,8 @@ namespace TicTacClient.Menus
         ProtocolHandler ph;
 
         bool gameOver = false;
-        bool thisPlayersTurn;        
+        bool thisPlayersTurn;
+        bool initialTurn;
 
         /// <summary>
         /// Creates a new GameBoard page.
@@ -83,6 +84,7 @@ namespace TicTacClient.Menus
             SocketArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ReceiveOpponentsMove);
 
             this.thisPlayersTurn = thisPlayersTurn;
+            initialTurn = this.thisPlayersTurn;
 
             Board = new List<GameBoardSpot>()
             {
@@ -154,7 +156,8 @@ namespace TicTacClient.Menus
                     else
                     {
                         //If they've won, end the game.
-                        ph.SendMove(spot);
+                        if (thisPlayersTurn)
+                            ph.SendMove(spot);
                         EndGame();
                     }
                 }
@@ -236,14 +239,36 @@ namespace TicTacClient.Menus
             {
                 Board[i].Reset();
             }
-            ph.SendReplay(Decision.YES);
+            Decision theirDecision = ph.SendReplay(Decision.YES);
+            if (theirDecision == Decision.YES)
+            {
+                resultLabel.Visibility = Visibility.Hidden;
+                playAgainButton.Visibility = System.Windows.Visibility.Hidden;
+                quitButton.Visibility = System.Windows.Visibility.Hidden;
+                gameOver = false;
+                thisPlayersTurn = initialTurn;
+
+                if (!thisPlayersTurn)
+                {
+                    playerLabel.FontWeight = FontWeights.Normal;
+                    opponentLabel.FontWeight = FontWeights.Bold;
+                    statusLabel.Content = "Waiting on opponent...";
+
+                    ph.GetMove(SocketArgs);
+                }
+                else
+                {
+                    playerLabel.FontWeight = FontWeights.Bold;
+                    opponentLabel.FontWeight = FontWeights.Normal;
+                    statusLabel.Content = "Your move...";
+                }
+            }
         }
 
         private void quitButton_Click(object sender, RoutedEventArgs e)
         {
-            ph.LeaveGame();
+            //ph.LeaveGame();
             ph.SendReplay(Decision.NO);
-            
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
     }

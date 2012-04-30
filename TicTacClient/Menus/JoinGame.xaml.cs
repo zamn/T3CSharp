@@ -26,6 +26,7 @@ namespace TicTacClient.Menus
             InitializeComponent();
             this.ph = ph;
             MainWindow = mainWindow;
+            gameIDTextbox.Text = "";
         }
 
         private void cancelButton_Click(object sender, RoutedEventArgs e)
@@ -34,6 +35,11 @@ namespace TicTacClient.Menus
             gameIDTextbox.Text = "";
 
             MainWindow.SwapPage(MenuPages.MainMenu);
+        }
+
+        public void OnLoaded(object sender, EventArgs e)
+        {
+            gameIDTextbox.Focus();
         }
 
         private void connectButton_Click(object sender, RoutedEventArgs e)

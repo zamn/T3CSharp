@@ -342,7 +342,7 @@ namespace TicTacClient
         {
             byte[] info = new byte[10];
             info[0] = Convert.ToByte((int)decision << 4);
-            info[1] |= 11;
+            info[0] |= 11;
             sock.Send(info);
             byte[] receiveInfo = new byte[10];
             sock.Receive(receiveInfo);

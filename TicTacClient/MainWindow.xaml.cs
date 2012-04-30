@@ -54,7 +54,10 @@ namespace TicTacClient
 
         public void GenerateNewGame(Player opponent, bool thisPlayersTurn, int gameID)
         {
-            menuPages.Add(MenuPages.InGame, new Menus.GameBoard(this, ProtocolHandler, Player, opponent, thisPlayersTurn, gameID));
+            if (!menuPages.ContainsKey(MenuPages.InGame))
+                menuPages.Add(MenuPages.InGame, new Menus.GameBoard(this, ProtocolHandler, Player, opponent, thisPlayersTurn, gameID));
+            else
+                menuPages[MenuPages.InGame] = new Menus.GameBoard(this, ProtocolHandler, Player, opponent, thisPlayersTurn, gameID);
             this.Content = menuPages[MenuPages.InGame];
         }
 
