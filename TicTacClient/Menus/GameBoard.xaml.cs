@@ -248,6 +248,7 @@ namespace TicTacClient.Menus
 
         private void GetOpponentsDecision(object o, SocketAsyncEventArgs args)
         {
+            MessageBox.Show("WHen is get opponent dec being called?");
             this.Dispatcher.Invoke((Action<SocketAsyncEventArgs>)ParseReply, args);
         }
 

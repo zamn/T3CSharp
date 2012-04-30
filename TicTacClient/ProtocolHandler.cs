@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Windows;
 using TicTacClient.Menus;
+using System.Security;
 
 namespace TicTacClient
 {
@@ -46,7 +47,7 @@ namespace TicTacClient
 
                 sock.Send(info);
                 sock.Receive(receiveInfo);
-
+                MessageBox.Show("Received data from connectr");
                 if (Convert.ToInt32(receiveInfo[0]) == 2)
                 {
                     connected = true;
@@ -77,10 +78,10 @@ namespace TicTacClient
                 byte[] info = new byte[1];
                 info[0] = Convert.ToByte(3);
                 sock.Send(info);
-
+               // MessageBox.Show("Am i getting here?");
                 byte[] receiveInfo = new byte[20];                
-                sock.Receive(receiveInfo);    
-
+                sock.Receive(receiveInfo);
+                MessageBox.Show("Received data from create!?!");
                 if (receiveInfo[0] == 2)
                     return Convert.ToInt32(receiveInfo[1]);
                 else if (((receiveInfo[0] & 15) == 7) && ((receiveInfo[0] >> 4) == 7))
@@ -104,18 +105,28 @@ namespace TicTacClient
         {
             if (connected)
             {
-                byte[] info = new byte[2];
-                info[0] = Convert.ToByte(4);
-                info[1] = Convert.ToByte(GameID);
-                sock.Send(info);
+                try
+                {
+                    MessageBox.Show("Am I getting here?");
+                    byte[] info = new byte[2];
+                    info[0] = Convert.ToByte(4);
+                    info[1] = Convert.ToByte(GameID);
+                    sock.Send(info);
 
-                byte[] receiveInfo = new byte[20];
-                sock.Receive(receiveInfo);
-                //MessageBox.Show("Getting: " + receiveInfo[0].ToString());
-                if ((receiveInfo[0] & 15) == 7)
-                    return (receiveInfo[0] >> 4);
+                    byte[] receiveInfo = new byte[20];
+                    
+                    sock.Receive(receiveInfo);//opponent is receiving move
+                    //MessageBox.Show("Getting: " + receiveInfo[0].ToString());
+                    MessageBox.Show("Is this being called?");
+                    if ((receiveInfo[0] & 15) == 7)
+                        return (receiveInfo[0] >> 4);
 
-                return receiveInfo[0];
+                    return receiveInfo[0];
+                }
+                catch (ArgumentOutOfRangeException ae)
+                {
+                    MessageBox.Show(ae.Message);
+                }
             }
 
             return -1;
@@ -131,7 +142,7 @@ namespace TicTacClient
             byte[] buffer = new byte[20];
             
             sock.Receive(buffer);
-
+            MessageBox.Show("Received data from getopponent");
             int nickLength = buffer[0] >> 4;
             char opponentSymbol = Convert.ToChar(buffer[1]);
             string opponentNick = Encoding.UTF8.GetString(buffer, 2, nickLength);
@@ -166,6 +177,7 @@ namespace TicTacClient
             e.Completed += delegate(object o, SocketAsyncEventArgs se)
             {
                 byte[] receiveInfo = se.Buffer;
+                MessageBox.Show("Got move from opp");
                 int move = Convert.ToInt32(receiveInfo[0]);
                 if (((move & 15) == 7) && ((move >> 4) == 6))
                     se.UserToken = -1;
@@ -342,7 +354,7 @@ namespace TicTacClient
             e.Completed += delegate(object o, SocketAsyncEventArgs se)
             {
                 byte[] receiveInfo = se.Buffer;
-
+                MessageBox.Show("Got shit from replay");
                 if ((receiveInfo[0] & 15) == 11)
                 {
                     if (((receiveInfo[0] & 240) >> 4) == 0)
