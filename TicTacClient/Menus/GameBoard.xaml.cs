@@ -27,6 +27,7 @@ namespace TicTacClient.Menus
     {
         public MainWindow MainWindow { get; private set; }
         public SocketAsyncEventArgs SocketArgs { get; private set; }
+        public SocketAsyncEventArgs ReplyArgs { get; private set; }
 
         /// <summary>
         /// A list containing the 9 spots on a tic-tac-toe board.        
@@ -63,6 +64,8 @@ namespace TicTacClient.Menus
         ProtocolHandler ph;
 
         bool gameOver = false;
+        bool opponentWantsReplay;
+        bool youWantReplay;
         bool thisPlayersTurn;
         bool initialTurn;
 
@@ -139,6 +142,7 @@ namespace TicTacClient.Menus
             {
                 resultLabel.Visibility = Visibility.Visible;
                 playAgainButton.Visibility = System.Windows.Visibility.Visible;
+                playAgainButton.IsEnabled = false;
                 quitButton.Visibility = System.Windows.Visibility.Visible;
 
                 resultLabel.Content = "Opponent Quit!";                
@@ -146,16 +150,14 @@ namespace TicTacClient.Menus
             else
             {
                 if (Board[spot - 1].AttemptMove(CurrentPlayer))
-                {
-                    //Checks to see if the current player has won.
-                    if (CheckForWin() == false)
+                {                    
+                    if (CheckForWin() == false &&
+                        CheckForTie() == false)
                     {
-                        //If not, change turns.
                         ChangeTurn(spot);
                     }
                     else
-                    {
-                        //If they've won, end the game.
+                    {                        
                         if (thisPlayersTurn)
                             ph.SendMove(spot);
                         EndGame();
@@ -205,13 +207,27 @@ namespace TicTacClient.Menus
             return false;            
         }
 
-        private void EndGame()
+        private bool CheckForTie()
         {
+            return !Board.Any(spot => spot.Symbol == default(char));
+        }
+
+        private void EndGame()
+        {            
             resultLabel.Visibility = Visibility.Visible;
             playAgainButton.Visibility = System.Windows.Visibility.Visible;
+            playAgainButton.IsEnabled = true;
             quitButton.Visibility = System.Windows.Visibility.Visible;
-            
-            if (thisPlayersTurn)
+
+            ReplyArgs = ph.GetReplayDecisionArgs();
+            ReplyArgs.Completed += new EventHandler<SocketAsyncEventArgs>(GetOpponentsDecision);
+            ph.GetReplayDecision(ReplyArgs);
+
+            if (CheckForTie())
+            {
+                resultLabel.Content = "Tie Game!";
+            }
+            else if (thisPlayersTurn)
             {
                 resultLabel.Content = "You Win!";
                 Player.AddWin();                
@@ -227,6 +243,62 @@ namespace TicTacClient.Menus
             gameOver = true;
         }
 
+        private void GetOpponentsDecision(object o, SocketAsyncEventArgs args)
+        {
+            this.Dispatcher.Invoke((Action<SocketAsyncEventArgs>)ParseReply, args);
+        }
+
+        private void ParseReply(SocketAsyncEventArgs args)
+        {
+            Decision theirDecision = (Decision)args.UserToken;
+
+            if (theirDecision == Decision.YES)
+            {
+                if (youWantReplay)
+                    ResetGame();
+                else
+                {
+                    resultLabel.Content = "Opponent Wants\nA rematch!";
+                    opponentWantsReplay = true;
+                }
+            }
+            else
+            {
+                resultLabel.Content = "Opponent Quit!";
+                playAgainButton.IsEnabled = false;                
+            }
+        }
+
+        private void ResetGame()
+        {
+            Board.ForEach(b => b.Reset());
+
+            resultLabel.Visibility = Visibility.Hidden;
+            playAgainButton.Visibility = System.Windows.Visibility.Hidden;
+            quitButton.Visibility = System.Windows.Visibility.Hidden;
+
+            gameOver = false;
+            opponentWantsReplay = false;
+            youWantReplay = false;
+
+            thisPlayersTurn = initialTurn;
+
+            if (!thisPlayersTurn)
+            {
+                playerLabel.FontWeight = FontWeights.Normal;
+                opponentLabel.FontWeight = FontWeights.Bold;
+                statusLabel.Content = "Waiting on opponent...";
+
+                ph.GetMove(SocketArgs);
+            }
+            else
+            {
+                playerLabel.FontWeight = FontWeights.Bold;
+                opponentLabel.FontWeight = FontWeights.Normal;
+                statusLabel.Content = "Your move...";
+            }
+        }
+
         private void forfeitButton_Click(object sender, RoutedEventArgs e)
         {
             ph.LeaveGame(); // Leaves current game for player
@@ -235,40 +307,18 @@ namespace TicTacClient.Menus
 
         private void playAgainButton_Click(object sender, RoutedEventArgs e)
         {
-            for (int i = 0; i < Board.Count; i++)
-            {
-                Board[i].Reset();
-            }
-            Decision theirDecision = ph.SendReplay(Decision.YES);
-            if (theirDecision == Decision.YES)
-            {
-                resultLabel.Visibility = Visibility.Hidden;
-                playAgainButton.Visibility = System.Windows.Visibility.Hidden;
-                quitButton.Visibility = System.Windows.Visibility.Hidden;
-                gameOver = false;
-                thisPlayersTurn = initialTurn;
+            playAgainButton.IsEnabled = false;
+            youWantReplay = true;     
+            ph.SendReplayDecision(Decision.YES);
 
-                if (!thisPlayersTurn)
-                {
-                    playerLabel.FontWeight = FontWeights.Normal;
-                    opponentLabel.FontWeight = FontWeights.Bold;
-                    statusLabel.Content = "Waiting on opponent...";
-
-                    ph.GetMove(SocketArgs);
-                }
-                else
-                {
-                    playerLabel.FontWeight = FontWeights.Bold;
-                    opponentLabel.FontWeight = FontWeights.Normal;
-                    statusLabel.Content = "Your move...";
-                }
-            }
+            if (opponentWantsReplay)
+                ResetGame();
         }
 
         private void quitButton_Click(object sender, RoutedEventArgs e)
-        {
-            //ph.LeaveGame();
-            ph.SendReplay(Decision.NO);
+        {            
+            ph.SendReplayDecision(Decision.NO);            
+            
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
     }

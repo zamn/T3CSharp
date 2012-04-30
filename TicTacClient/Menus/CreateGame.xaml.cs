@@ -26,8 +26,9 @@ namespace TicTacClient.Menus
 
         Action _waitingAction;
         Thread _waitingOperation;
+        bool _waitingForConnection;
 
-        int gameID = -1;
+        int gameID = -1;        
 
         public CreateGame(MainWindow mainWindow, ProtocolHandler ph)
         {
@@ -43,7 +44,8 @@ namespace TicTacClient.Menus
                     {
                         int numberOfPeriods = 1;
 
-                        while ((bool)this.Dispatcher.Invoke((Func<bool>)(() => MainWindow.ProtocolHandler.Client.Available == 0)))
+                        while (_waitingForConnection && 
+                            (bool)this.Dispatcher.Invoke((Func<bool>)(() => MainWindow.ProtocolHandler.Client.Available == 0)))
                         {
                             this.Dispatcher.Invoke((Action)(() =>
                                     waitingLabel.Content = String.Format("Waiting on opponent{0}", new string('.', numberOfPeriods))
@@ -57,8 +59,11 @@ namespace TicTacClient.Menus
                             System.Threading.Thread.Sleep(350);
                         }
 
-                        Player opponent = (Player)this.Dispatcher.Invoke((Func<Player>)(() => ph.GetOpponent()));
-                        this.Dispatcher.Invoke((Action)(() => MainWindow.GenerateNewGame(opponent, true, gameID)));                        
+                        if (_waitingForConnection)
+                        {
+                            Player opponent = (Player)this.Dispatcher.Invoke((Func<Player>)(() => ph.GetOpponent()));
+                            this.Dispatcher.Invoke((Action)(() => MainWindow.GenerateNewGame(opponent, true, gameID)));
+                        }
                     }
                     catch (NullReferenceException) { }
                 };
@@ -68,20 +73,19 @@ namespace TicTacClient.Menus
 
         private void backButton_Click(object sender, RoutedEventArgs e)
         {
+            _waitingForConnection = false;
             ph.LeaveGame();
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
 
         public void GenerateGameID()
-        {
-            if (_waitingOperation.IsAlive == false)  // fix diz bug!
-            {
-                _waitingOperation = new Thread(_waitingAction.Invoke);
-                _waitingOperation.Start();
+        {          
+            _waitingOperation = new Thread(_waitingAction.Invoke);
+            _waitingForConnection = true;
+            _waitingOperation.Start();            
 
-                gameID = ph.Create();
-                gameIDLabel.Content = String.Format("Your GameID is {0}.", gameID);
-            }
+            gameID = ph.Create();
+            gameIDLabel.Content = String.Format("Your GameID is {0}.", gameID);         
         }
     }
 }
