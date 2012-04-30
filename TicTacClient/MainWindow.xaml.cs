@@ -65,6 +65,8 @@ namespace TicTacClient
         {
             if (page == MenuPages.CreateGame)
                 (menuPages[MenuPages.CreateGame] as Menus.CreateGame).GenerateGameID();
+            else if (page == MenuPages.JoinGame)
+                (menuPages[MenuPages.JoinGame] as Menus.JoinGame).gameIDTextbox.Text = "";
 
             this.Content = menuPages[page];
         }

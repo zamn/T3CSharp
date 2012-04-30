@@ -44,20 +44,23 @@ namespace TicTacClient.Menus
 
         private void connectButton_Click(object sender, RoutedEventArgs e)
         {
+            
             string gameID = gameIDTextbox.Text;
             errorLabel.Content = "";
 
             if (gameID.All(x => char.IsDigit(x)))
             {
+                //MessageBox.Show("Is this being called?1111");
                 int serverResponse;
 
                 if ((int.Parse(gameID) < 1) || (int.Parse(gameID) > 255))
                     serverResponse = 6;
                 else
                     serverResponse = ph.Join(int.Parse(gameID));
-
+                //MessageBox.Show("am i gettin past diz?" + serverResponse.ToString());
                 if (serverResponse == 2)
                 {
+                    //MessageBox.Show("AM i summoning this?");
                     Player opponent = ph.GetOpponent();
                     MainWindow.GenerateNewGame(opponent, false, Convert.ToInt32(gameID));
                 }

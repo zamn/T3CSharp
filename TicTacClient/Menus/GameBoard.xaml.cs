@@ -27,6 +27,7 @@ namespace TicTacClient.Menus
     {
         public MainWindow MainWindow { get; private set; }
         public SocketAsyncEventArgs SocketArgs { get; private set; }
+        public SocketAsyncEventArgs ReplyArgs { get; private set; }
 
         /// <summary>
         /// A list containing the 9 spots on a tic-tac-toe board.        
@@ -63,8 +64,9 @@ namespace TicTacClient.Menus
         ProtocolHandler ph;
 
         bool gameOver = false;
+        bool opponentWantsReplay;
+        bool youWantReplay;
         bool thisPlayersTurn;
-        bool initialTurn;
 
         /// <summary>
         /// Creates a new GameBoard page.
@@ -84,7 +86,6 @@ namespace TicTacClient.Menus
             SocketArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ReceiveOpponentsMove);
 
             this.thisPlayersTurn = thisPlayersTurn;
-            initialTurn = this.thisPlayersTurn;
 
             Board = new List<GameBoardSpot>()
             {
@@ -139,23 +140,23 @@ namespace TicTacClient.Menus
             {
                 resultLabel.Visibility = Visibility.Visible;
                 playAgainButton.Visibility = System.Windows.Visibility.Visible;
+                playAgainButton.IsEnabled = false;
                 quitButton.Visibility = System.Windows.Visibility.Visible;
 
+                forfeitButton.IsEnabled = false;
                 resultLabel.Content = "Opponent Quit!";                
             }
             else
             {
                 if (Board[spot - 1].AttemptMove(CurrentPlayer))
-                {
-                    //Checks to see if the current player has won.
-                    if (CheckForWin() == false)
+                {                    
+                    if (CheckForWin() == false &&
+                        CheckForTie() == false)
                     {
-                        //If not, change turns.
                         ChangeTurn(spot);
                     }
                     else
-                    {
-                        //If they've won, end the game.
+                    {                        
                         if (thisPlayersTurn)
                             ph.SendMove(spot);
                         EndGame();
@@ -189,7 +190,7 @@ namespace TicTacClient.Menus
         private bool CheckForWin()
         {
             char symbol = CurrentPlayer.Symbol;           
-
+            // lol @ check winning code
             if ((Board[0].Symbol == symbol && Board[1].Symbol == symbol && Board[2].Symbol == symbol) ||
                 (Board[3].Symbol == symbol && Board[4].Symbol == symbol && Board[5].Symbol == symbol) ||
                 (Board[6].Symbol == symbol && Board[7].Symbol == symbol && Board[8].Symbol == symbol) ||
@@ -205,13 +206,31 @@ namespace TicTacClient.Menus
             return false;            
         }
 
-        private void EndGame()
+        private bool CheckForTie()
         {
+            if (CheckForWin())
+                return false;
+            else
+                return !Board.Any(spot => spot.Symbol == default(char));
+        }
+
+        private void EndGame()
+        {            
             resultLabel.Visibility = Visibility.Visible;
             playAgainButton.Visibility = System.Windows.Visibility.Visible;
+            playAgainButton.IsEnabled = true;
             quitButton.Visibility = System.Windows.Visibility.Visible;
-            
-            if (thisPlayersTurn)
+            forfeitButton.IsEnabled = false;
+
+            ReplyArgs = ph.GetReplayDecisionArgs();
+            ReplyArgs.Completed += new EventHandler<SocketAsyncEventArgs>(GetOpponentsDecision);
+            ph.GetReplayDecision(ReplyArgs);
+
+            if (CheckForTie())
+            {
+                resultLabel.Content = "Tie Game!";
+            }
+            else if (thisPlayersTurn)
             {
                 resultLabel.Content = "You Win!";
                 Player.AddWin();                
@@ -227,6 +246,62 @@ namespace TicTacClient.Menus
             gameOver = true;
         }
 
+        private void GetOpponentsDecision(object o, SocketAsyncEventArgs args)
+        {
+            this.Dispatcher.Invoke((Action<SocketAsyncEventArgs>)ParseReply, args);
+        }
+
+        private void ParseReply(SocketAsyncEventArgs args)
+        {
+            Decision theirDecision = (Decision)args.UserToken;
+
+            if (theirDecision == Decision.YES)
+            {
+                if (youWantReplay)
+                    ResetGame();
+                else
+                {
+                    resultLabel.Content = "Opponent Wants\nA rematch!";
+                    opponentWantsReplay = true;
+                }
+            }
+            else
+            {
+                resultLabel.Content = "Opponent Quit!";
+                playAgainButton.IsEnabled = false;                
+            }
+        }
+
+        private void ResetGame()
+        {
+            Board.ForEach(b => b.Reset());
+
+            resultLabel.Visibility = Visibility.Hidden;
+            playAgainButton.Visibility = System.Windows.Visibility.Hidden;
+            quitButton.Visibility = System.Windows.Visibility.Hidden;
+            forfeitButton.IsEnabled = true;
+            gameOver = false;
+            opponentWantsReplay = false;
+            youWantReplay = false;
+
+            thisPlayersTurn = !thisPlayersTurn;
+
+            if (!thisPlayersTurn)
+            {
+                playerLabel.FontWeight = FontWeights.Normal;
+                opponentLabel.FontWeight = FontWeights.Bold;
+                statusLabel.Content = "Waiting on opponent...";
+
+                ph.GetMove(SocketArgs);
+            }
+            else
+            {
+                playerLabel.FontWeight = FontWeights.Bold;
+                opponentLabel.FontWeight = FontWeights.Normal;
+                statusLabel.Content = "Your move...";
+            }
+        }
+
         private void forfeitButton_Click(object sender, RoutedEventArgs e)
         {
             ph.LeaveGame(); // Leaves current game for player
@@ -235,47 +310,20 @@ namespace TicTacClient.Menus
 
         private void playAgainButton_Click(object sender, RoutedEventArgs e)
         {
-            for (int i = 0; i < Board.Count; i++)
-            {
-                Board[i].Reset();
-            }
-            Decision theirDecision = ph.SendReplay(Decision.YES);
-            if (theirDecision == Decision.YES)
-            {
-                resultLabel.Visibility = Visibility.Hidden;
-                playAgainButton.Visibility = System.Windows.Visibility.Hidden;
-                quitButton.Visibility = System.Windows.Visibility.Hidden;
-                gameOver = false;
-                thisPlayersTurn = !thisPlayersTurn;
+            playAgainButton.IsEnabled = false;
+            youWantReplay = true;     
+            ph.SendReplayDecision(Decision.YES);
 
-                if (!thisPlayersTurn)
-                {
-                    playerLabel.FontWeight = FontWeights.Normal;
-                    opponentLabel.FontWeight = FontWeights.Bold;
-                    statusLabel.Content = "Waiting on opponent...";
-
-                    ph.GetMove(SocketArgs);
-                }
-                else
-                {
-                    playerLabel.FontWeight = FontWeights.Bold;
-                    opponentLabel.FontWeight = FontWeights.Normal;
-                    statusLabel.Content = "Your move...";
-                }
-            }
-            else if (theirDecision == Decision.NO)
-            {
-                MainWindow.SwapPage(MenuPages.CreateGame);
-            }
-            else
-            {
-                MessageBox.Show("Uh ohes, there are errors!");
-            }
+            if (opponentWantsReplay)
+                ResetGame();
         }
 
         private void quitButton_Click(object sender, RoutedEventArgs e)
         {
-            ph.SendReplay(Decision.NO);
+            if (playAgainButton.IsEnabled)
+                ph.SendReplayDecision(Decision.NO);
+            else
+                ph.LeaveGame();
             MainWindow.SwapPage(MenuPages.MainMenu);
         }
     }

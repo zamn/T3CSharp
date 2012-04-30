@@ -110,8 +110,8 @@ namespace TicTacClient
                 sock.Send(info);
 
                 byte[] receiveInfo = new byte[20];
-                sock.Receive(receiveInfo);                
-
+                sock.Receive(receiveInfo);
+                //MessageBox.Show("Getting: " + receiveInfo[0].ToString());
                 if ((receiveInfo[0] & 15) == 7)
                     return (receiveInfo[0] >> 4);
 
@@ -332,28 +332,48 @@ namespace TicTacClient
             info[0] |= 10;
             sock.Send(info);
         }
-        
+
+        public SocketAsyncEventArgs GetReplayDecisionArgs()
+        {
+            SocketAsyncEventArgs e = new SocketAsyncEventArgs();
+            byte[] buffer = new byte[10];
+            e.SetBuffer(buffer, 0, 10);
+
+            e.Completed += delegate(object o, SocketAsyncEventArgs se)
+            {
+                byte[] receiveInfo = se.Buffer;
+
+                if ((receiveInfo[0] & 15) == 11)
+                {
+                    if (((receiveInfo[0] & 240) >> 4) == 0)
+                        se.UserToken = Decision.NO;
+                    else
+                        se.UserToken = Decision.YES;
+                }
+                else
+                    se.UserToken = Decision.INVALID;
+            };
+
+            return e;
+        }
+
+        public void GetReplayDecision(SocketAsyncEventArgs e)
+        {
+            sock.ReceiveAsync(e);
+        }
+
         /// <summary>
         /// Inform other player whether or not you desire a rematch.
         /// </summary>
         /// <param name="decision">Players decision on Play Again?</param>
         /// <returns></returns>
-        public Decision SendReplay(Decision decision)
+        public void SendReplayDecision(Decision decision)
         {
             byte[] info = new byte[10];
             info[0] = Convert.ToByte((int)decision << 4);
             info[0] |= 11;
-            sock.Send(info);
-            byte[] receiveInfo = new byte[10];
-            sock.Receive(receiveInfo);
-            if ((receiveInfo[0] & 15) == 11)
-            {
-                if (((receiveInfo[0] & 240) >> 4) == 0)
-                    return Decision.NO;
-                else
-                    return Decision.YES;
-            }
-            return Decision.INVALID;
-        }
+
+            sock.Send(info);            
+        }                
     }
 }
