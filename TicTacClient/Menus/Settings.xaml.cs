@@ -28,6 +28,11 @@ namespace TicTacClient.Menus
             MainWindow = mainWindow;
         }
 
+        public void OnLoaded(object sender, EventArgs e)
+        {
+            this.usernameTextbox.Focus();
+        }
+
         private void LoadSettingsWindow(object sender, RoutedEventArgs e)
         {
             usernameTextbox.Text = MainWindow.Player.Nickname;

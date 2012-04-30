@@ -246,7 +246,7 @@ namespace TicTacClient.Menus
                 playAgainButton.Visibility = System.Windows.Visibility.Hidden;
                 quitButton.Visibility = System.Windows.Visibility.Hidden;
                 gameOver = false;
-                thisPlayersTurn = initialTurn;
+                thisPlayersTurn = !thisPlayersTurn;
 
                 if (!thisPlayersTurn)
                 {
@@ -263,11 +263,18 @@ namespace TicTacClient.Menus
                     statusLabel.Content = "Your move...";
                 }
             }
+            else if (theirDecision == Decision.NO)
+            {
+                MainWindow.SwapPage(MenuPages.CreateGame);
+            }
+            else
+            {
+                MessageBox.Show("Uh ohes, there are errors!");
+            }
         }
 
         private void quitButton_Click(object sender, RoutedEventArgs e)
         {
-            //ph.LeaveGame();
             ph.SendReplay(Decision.NO);
             MainWindow.SwapPage(MenuPages.MainMenu);
         }

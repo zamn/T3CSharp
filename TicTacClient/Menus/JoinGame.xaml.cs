@@ -49,7 +49,12 @@ namespace TicTacClient.Menus
 
             if (gameID.All(x => char.IsDigit(x)))
             {
-                int serverResponse = ph.Join(int.Parse(gameID));
+                int serverResponse;
+
+                if ((int.Parse(gameID) < 1) || (int.Parse(gameID) > 255))
+                    serverResponse = 6;
+                else
+                    serverResponse = ph.Join(int.Parse(gameID));
 
                 if (serverResponse == 2)
                 {
@@ -75,6 +80,9 @@ namespace TicTacClient.Menus
                         case 5:
                             errorLabel.Content = "ERROR! This game is full!";
                             break;
+                        case 6:
+                            errorLabel.Content = "ERROR! Invalid Game ID Range!";
+                            break;
                     }
                 }
             }
@@ -82,6 +90,13 @@ namespace TicTacClient.Menus
             {
                 errorLabel.Content = "Not a valid GameID.";
             }
+        }
+
+        private void gameIDTextbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            Key k = e.Key;
+            if (k.ToString().Equals("Return"))
+                connectButton_Click(this, e);
         }
     }
 }
