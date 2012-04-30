@@ -317,6 +317,10 @@ namespace TicTacClient.Menus
 
             if (opponentWantsReplay)
                 ResetGame();
+            else
+            {
+                resultLabel.Content = "Opponent Left!";
+            }
         }
 
         private void quitButton_Click(object sender, RoutedEventArgs e)
